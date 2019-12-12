@@ -6,11 +6,6 @@ from ad import Ad
 #import re
 
 
-class IPHasBeenTemporaryBanned(Exception):
-    'if url equals www.avito.ru/blocked'
-    pass
-
-
 class FailedLoadingUrl(Exception):
     'if url not equals 200'
     pass
@@ -20,7 +15,7 @@ headers = {'accept': '*/*',
            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win32; x32; rv:70.0) Gecko/20100101 Firefox/70.0'
            }
 
-site_adress = 'https://www.avito.ru'
+site = 'https://www.avito.ru'
 base_url = 'https://www.avito.ru/volgograd/mebel_i_interer/krovati_divany_i_kresla?q=%D0%B4%D0%B8%D0%B2%D0%B0%D0%BD'
 blocked_url = 'https://www.avito.ru/blocked'
 
@@ -28,9 +23,9 @@ blocked_url = 'https://www.avito.ru/blocked'
 def get_request(session, url, headers):
     request = session.get(url, headers=headers)
     if request.status_code != 200:
-        raise FailedLoadingUrl
+        raise Exception("FailedLoadingUrl")
     if request.url == blocked_url:
-        raise IPHasBeenTemporaryBanned
+        raise Exception("IPHasBeenTemporaryBanned")
     return request
 
 
@@ -52,14 +47,15 @@ def parse_avito(base_url, headers):
     soup = bs(request.content, 'html.parser')
     time.sleep(2.5)
     divs = soup.find_all('div', attrs={'class': 'snippet-horizontal'})
-    print('Кол-во объявлений: {}'.format(len(divs)))
+    print('Amount of ads: {}'.format(len(divs)))
 
     for div in divs:
         ad = Ad(div)
-        #href = div.find('a', attrs={'class': 'item-description-title-link'})['href']
-        #href = site_adress + href
-        #print(href)
         ad.print_info()
+        ad_request = get_request(session, site + ad.href, headers)#session.get(site + ad.href, headers=headers)
+        ad_soup = bs(ad_request.content, 'html.parser')
+        ad.get_detailed_info(ad_soup)
+        time.sleep(11.5)
     #         item_request = session.get(href, headers=headers)
     #         if item_request.status_code == 200:
     #             print('ok2')
