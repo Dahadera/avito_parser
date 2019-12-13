@@ -65,4 +65,4 @@ class Ad:
         print('id: {}\ntittle: {}\nPrice: {}\nAdress: {}\nSeller: {}'.format(self.id, self.tittle, self.price, self.adress, self.seller_name))
         print('Date published: {}'.format(self.date_published))
         print("Href: avito.ru{}".format(self.href))
-        print("des: {}".format(self.description))
+        print("Description: {}".format(self.description))
