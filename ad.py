@@ -1,4 +1,5 @@
 from phone_grabber import Grabber
+import jsonpickle
 
 
 class Ad:
@@ -21,7 +22,7 @@ class Ad:
             self.tittle = "error"
             raise Exception("Failed parse tittle") #?is it actually possible?
         try:
-            self.date_published = ad_soup.find('ad_soup', attrs={'class': 'js-item-date c-2'})
+            self.date_published = ad_soup.find('ad_soup', attrs={'class': 'js-item-date'})
         except:
             self.date_published = "error"
             #raise Exception("Failed parse date")
@@ -52,6 +53,12 @@ class Ad:
         except:
             self.description = "error"
             raise Exception("Failed parse description")
+        if self.date_published.count() == 0:
+            try:
+                self.date_published = detailed_ad_soup.find('div', attrs={'class': 'title-info-metadata-item-redesign'}).text
+            except:
+                self.date_published = "error"
+                raise Exception("Failed date published")
 
     def get_phone_number(self):
         try:
@@ -60,6 +67,12 @@ class Ad:
         except:
             self.seller_phone = "error"
             raise Exception("Failed parse seller_phone")
+
+    def to_json(self):
+        return jsonpickle.encode(self)
+
+    def from_json(self, json_data):
+        return jsonpickle.decode(json_data)
 
     def print_info(self):
         print('id: {}\ntittle: {}\nPrice: {}\nAdress: {}\nSeller: {}'.format(self.id, self.tittle, self.price, self.adress, self.seller_name))

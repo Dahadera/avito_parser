@@ -40,7 +40,7 @@ def gen_urls(city, quest, pages, category="", subcategory=""):
     urls_list = []
     base_url = "https://www.avito.ru/{}/{}/{}?q={}".format(city, category, subcategory, quest)
     for i in range(1, pages + 1):
-        url = base_url + "&p={}".format(i) #"https://www.avito.ru/{}}/{}}/{}}?q={}&p={}".format(city, category, subcategory, i, quest)
+        url = base_url + "&p={}".format(i)
         urls_list.append(url)
     return urls_list
 
@@ -51,15 +51,19 @@ def parse_page(soup):
 
     for div in divs:
         ad = Ad(div)
-        ad.print_info()
+        json_ad = ad.to_json()
+        print(json_ad)
+        #ad.print_info()
 
 
 session = requests.Session()
-base_url = site_adress + "?q={}"
+quest = "диван"
+city = "volgograd"
+base_url = site_adress + "/{}/?q={}".format(city, quest)
 pages = get_pages(session, base_url, headers)
-urls_list = gen_urls("volgograd", "диван", pages)
+urls_list = gen_urls(city, quest, pages)
 for i in range(len(urls_list)):
-    request = get_request(session, urls_list[i], headers)  # session.get(base_url, headers=headers)
+    request = get_request(session, urls_list[i], headers)
     soup = bs(request.content, 'html.parser')
     parse_page(soup)
 
