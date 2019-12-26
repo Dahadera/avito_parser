@@ -7,7 +7,7 @@ from ad import Ad
 
 
 headers = {'accept': '*/*',
-           'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win32; x32; rv:70.0) Gecko/20100101 Firefox/70.0'
+           'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0'
            }
 
 site_adress = 'https://www.avito.ru'
@@ -32,13 +32,13 @@ def get_pages(session, url, headers):
     return total_pages
 
 
-def gen_urls(city, quest, pages, category="", subcategory=""):
+def gen_urls(city, quest, pages):
     try:
         pages = int(pages)
     except:
         raise Exception("FailedCastPagesToInt")
     urls_list = []
-    base_url = "https://www.avito.ru/{}/{}/{}?q={}".format(city, category, subcategory, quest)
+    base_url = "https://www.avito.ru/{}/?q={}".format(city, quest)
     for i in range(1, pages + 1):
         url = base_url + "&p={}".format(i)
         urls_list.append(url)

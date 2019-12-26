@@ -5,13 +5,14 @@ import base64
 import pytesseract
 #from time import sleep
 
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe"
+# pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe"
 
 
 class Grabber:
-    def __init__(self, base_url):
+    def __init__(self, tesseract_path, webdriver_path, base_url):
+        pytesseract.pytesseract.tesseract_cmd = tesseract_path
+        self.driver = webdriver.Chrome(webdriver_path) #'C:/bin/chromedriver.exe'
         self.base_url = base_url
-        self.driver = webdriver.Chrome('C:/bin/chromedriver.exe')
         self.navigate()
         self.phone_number = self.get_phone_number()
 
