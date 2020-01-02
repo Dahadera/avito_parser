@@ -10,7 +10,7 @@ from datetime import date
 import tkinter.scrolledtext as ScrolledText
 from text_handler import TextHandler
 import logging
-import avito_parser
+from avito_parser import avitoParser
 
 
 def new_process_win():
@@ -93,10 +93,12 @@ def set_path_tesseract():
 def set_path_chrome():
     print("chrome set!")
 
+
 def start_callback():
     process_btn.configure(text="Stop", command=stop_callback)
     print("started!")
-    json_data
+    avito_parser = avitoParser(2.5, json_data["city"], json_data["quest"])
+    avito_parser.gen_urls()
 
 
 def stop_callback():
@@ -108,7 +110,6 @@ def stop_callback():
 win = tk.Tk()
 win.resizable(0, 0)
 win.title("Avito parser")
-json_data = None
 
 menu_bar = Menu(win)
 win.config(menu=menu_bar)
@@ -138,5 +139,7 @@ logger.addHandler(text_handler)
 
 process_btn = tk.Button(win, text="Start", state="disabled", command=start_callback)
 process_btn.grid(column=0, row=1)
+
+json_data = None
 
 win.mainloop()
