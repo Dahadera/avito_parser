@@ -4,8 +4,6 @@ import jsonpickle
 
 class Ad:
     def __init__(self, ad_soup):
-        self.site = "avito.ru"
-
         try:
             self.id = ad_soup['id']
         except:

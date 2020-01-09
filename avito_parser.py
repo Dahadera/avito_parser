@@ -6,7 +6,7 @@ from ad import Ad
 #import re
 
 
-class avitoParser:
+class AvitoParser:
     def __init__(self, pause_time, city, quest):
         self.headers = {'accept': '*/*',
                         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0'
@@ -14,6 +14,8 @@ class avitoParser:
         self.site_adress = 'https://www.avito.ru'
         self.session = requests.Session()
         self.pause_time = pause_time
+        self.ads_list = []
+        self.parsed_pages = 0
         self.quest = quest
         self.city = city
         self.base_url = self.get_base_url()
@@ -56,10 +58,12 @@ class avitoParser:
         for div in divs:
             ad = Ad(div)
             json_ad = ad.to_json()
-            print(json_ad)
+            self.ads_list.append(json_ad)
+            # print(json_ad)
             # ad.print_info()
+        self.parsed_pages += 1
 
-    def parse(self):
+    def parse_urls(self):
         for i in range(len(self.urls_list)):
             request = self.get_request(self.urls_list[i])
             soup = bs(request.content, 'html.parser')

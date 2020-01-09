@@ -10,7 +10,10 @@ from datetime import date
 import tkinter.scrolledtext as ScrolledText
 from text_handler import TextHandler
 import logging
-from avito_parser import avitoParser
+from avito_parser import AvitoParser
+
+
+global json_data
 
 
 def new_process_win():
@@ -52,7 +55,9 @@ def new_process_win():
         else:
             if not depth_entered.get():
                 messagebox.showwarning("Depth isn't specified, default equals to max possible value")
-            save_process(city_entered.get(), quest_entered.get(), depth_entered.get(), page_range=[0, 0], ads=[])
+                save_process(city_entered.get(), quest_entered.get(), "max", page_range=[0, 0], ads=[])
+            else:
+                save_process(city_entered.get(), quest_entered.get(), depth_entered.get(), page_range=[0, 0], ads=[])
             process_win.destroy()
 
     add_btn = tk.Button(process_win, text="Add", command=add_item)
@@ -80,6 +85,7 @@ def open_process():
     win.file_name = filedialog.askopenfilename(filetypes=(("JSON data", ".json"), ("all", "*.*")))
     with open(win.file_name, 'r+', encoding='utf8') as in_file:
         json_data = json.load(in_file)
+    process_btn.configure(state='active')
     logging.info("file {0} is loaded".format(win.file_name))
     print("opened!")
 
@@ -97,8 +103,10 @@ def set_path_chrome():
 def start_callback():
     process_btn.configure(text="Stop", command=stop_callback)
     print("started!")
-    avito_parser = avitoParser(2.5, json_data["city"], json_data["quest"])
-    avito_parser.gen_urls()
+    # c = json_data["city"]
+    # q = json_data["quest"]
+    avito_parser = AvitoParser(2.5, "Moskva".lower(), "Диван")
+    avito_parser.parse_urls()
 
 
 def stop_callback():
@@ -140,6 +148,5 @@ logger.addHandler(text_handler)
 process_btn = tk.Button(win, text="Start", state="disabled", command=start_callback)
 process_btn.grid(column=0, row=1)
 
-json_data = None
 
 win.mainloop()
