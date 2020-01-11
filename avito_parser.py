@@ -57,8 +57,8 @@ class AvitoParser:
 
         for div in divs:
             ad = Ad(div)
-            json_ad = ad.to_json()
-            self.ads_list.append(json_ad)
+            # json_ad = ad.to_json()
+            self.ads_list.append(ad)
             # print(json_ad)
             # ad.print_info()
         self.parsed_pages += 1
