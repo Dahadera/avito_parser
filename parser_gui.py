@@ -91,14 +91,14 @@ class ParserGUI:
 
         def add_item():
             if not city_entered.get():
-                messagebox.showerror("City isn't specified!")
+                messagebox.showerror("Error", message="City isn't specified!")
             elif not quest_entered.get():
-                messagebox.showerror("Quest is empty!")
+                messagebox.showerror("Error", message="Quest is empty!")
             else:
                 self.city = city_entered.get()
                 self.quest = quest_entered.get()
                 if not depth_entered.get():
-                    messagebox.showwarning("Depth isn't specified, default equals to max possible value")
+                    messagebox.showwarning("Warning", message="Depth isn't specified, default equals to max possible value")
                     self.depth = "max"
                     self.save_process()
                 else:
@@ -110,28 +110,36 @@ class ParserGUI:
         add_btn.grid(column=0, row=3)
 
     def save_process(self):
-        file_name = "{0}_{1}_{2}_{3}_{4}_{5}".format(self.city, self.quest, self.depth,
-                                                     str(self.page_range[0]), str(self.page_range[1]), date.today())
+        if self.json_data == None:
+            messagebox.showerror("Error", message="JSON file isn't loaded")
+            return
+
+        file_name = "{0}_{1}_{2}_{3}_{4}_{5}".format(self.json_data['city'],
+                                                     self.json_data['quest'],
+                                                     self.json_data['depth'],
+                                                     str(self.json_data['page_parsed']),
+                                                     str(self.json_data['total_pages']), date.today())
         process = {
-            "city": self.city,
-            "quest": self.quest,
-            "page_parsed": self.page_range[0],
-            "total_pages": self.page_range[1],
-            "ads": self.ads
+            "city": self.json_data['city'],
+            "quest": self.json_data['quest'],
+            "depth" : self.json_data['depth'],
+            "page_parsed": self.json_data['page_parsed'],
+            "total_pages": self.json_data['total_pages'],
+            "ads": self.json_data['ads']
         }
         with open(r"processes/{0}.json".format(file_name), 'w', encoding='utf8') as out_file:
             json.dump(process, out_file, ensure_ascii=False)
         # out_file.close()
         print("saved!")
-        return file_name
+        # return file_name
 
     def open_process(self):
         self.win.file_name = filedialog.askopenfilename(filetypes=(("JSON data", ".json"), ("all", "*.*")))
         with open(self.win.file_name, 'r+', encoding='utf8') as in_file:
-            self.file_name = self.win.file_name
+            self.file_name = in_file.name[in_file.name.rfind('/') + 1::]
             self.json_data = json.load(in_file)
         self.process_btn.configure(state='active')
-        logging.info("file {0} is loaded".format(self.win.file_name))
+        logging.info("file {0} is loaded\n".format(self.win.file_name))
         print("opened!")
 
     def update_token(self):
@@ -157,5 +165,4 @@ class ParserGUI:
         print("stopped!")
 
 
-
-
+gui = ParserGUI()

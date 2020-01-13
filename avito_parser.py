@@ -7,7 +7,7 @@ from ad import Ad
 
 
 class AvitoParser:
-    def __init__(self, pause_time, city, quest):
+    def __init__(self, pause_time, city, quest, depth):
         self.headers = {'accept': '*/*',
                         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0'
                         }
@@ -18,6 +18,7 @@ class AvitoParser:
         self.parsed_pages = 0
         self.quest = quest
         self.city = city
+        self.depth = depth
         self.base_url = self.get_base_url()
         self.total_pages = self.get_pages(self.base_url)
         self.urls_list = self.gen_urls()
