@@ -47,7 +47,8 @@ class AvitoParser:
             self.total_pages = int(self.total_pages)
         except:
             raise Exception("FailedCastTotalPagesToInt")
-        for i in range(1, int(self.total_pages) + 1):
+
+        for i in range(1, self.depth + 1):
             url = self.base_url + "&p={}".format(i)
             urls_list.append(url)
         return urls_list

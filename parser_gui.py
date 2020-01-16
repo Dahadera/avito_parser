@@ -6,6 +6,7 @@ from tkinter import ttk
 from tkinter import Frame
 from tkinter import Button
 import json
+import threading
 from datetime import date
 import tkinter.scrolledtext as ScrolledText
 from text_handler import TextHandler
@@ -26,6 +27,7 @@ class ParserGUI:
         self.options_menu.add_command(label="New", command=self.new_process_win)
         self.options_menu.add_command(label="Open", command=self.open_process)
         self.options_menu.add_command(label="Save", command=self.save_process)
+        self.options_menu.add_command(label="Add to watchlist", command=self.add_to_watchlist)
 
         self.config_menu = Menu(self.menu_bar, tearoff=0)
         self.config_menu.add_command(label="Update bot token", command=self.update_token)
@@ -54,11 +56,12 @@ class ParserGUI:
         self.page_range = [0, 0]
         self.ads = []
         self.file_name = ""
+        self.watchlist = None
         self.json_data = None
 
         self.win.mainloop()
 
-    def new_process_win(self):
+    def new_process_win(self, type='default'):
         process_win = tk.Tk()
         process_win.resizable(50, 50)
         process_win.lift(aboveThis=self.win)
@@ -90,6 +93,7 @@ class ParserGUI:
         depth_entered.grid(column=2, row=2)
 
         def add_item():
+            # if type == 'default':
             if not city_entered.get():
                 messagebox.showerror("Error", message="City isn't specified!")
             elif not quest_entered.get():
@@ -98,19 +102,20 @@ class ParserGUI:
                 self.city = city_entered.get()
                 self.quest = quest_entered.get()
                 if not depth_entered.get():
-                    messagebox.showwarning("Warning", message="Depth isn't specified, default equals to max possible value")
+                    messagebox.showwarning("Warning",
+                                           message="Depth isn't specified, default equals to max possible value")
                     self.depth = "max"
                     self.save_process()
                 else:
                     self.depth = depth_entered.get()
                     self.save_process()
-                process_win.destroy()
+            process_win.destroy()
 
         add_btn = tk.Button(process_win, text="Add", command=add_item)
         add_btn.grid(column=0, row=3)
 
     def save_process(self):
-        if self.json_data == None:
+        if self.json_data: # if None
             messagebox.showerror("Error", message="JSON file isn't loaded")
             return
 
@@ -118,7 +123,8 @@ class ParserGUI:
                                                      self.json_data['quest'],
                                                      self.json_data['depth'],
                                                      str(self.json_data['page_parsed']),
-                                                     str(self.json_data['total_pages']), date.today())
+                                                     str(self.json_data['total_pages']),
+                                                     date.today())
         process = {
             "city": self.json_data['city'],
             "quest": self.json_data['quest'],
@@ -142,6 +148,25 @@ class ParserGUI:
         logging.info("file {0} is loaded\n".format(self.win.file_name))
         print("opened!")
 
+    def add_to_watchlist(self):
+        with open(r"watchlist/watchlist.json", "r+", encoding='utf8') as watchlist_file:
+            self.win.file_name = filedialog.askopenfilename(filetypes=(("JSON data", ".json"), ("all", "*.*")))
+            with open(self.win.file_name, 'r+', encoding='utf8') as in_file:
+                json_data = json.load(in_file)
+                watchlist_file_json = json.load(watchlist_file)
+
+                watchlist_file_json['count'] += 1
+                watchlist_file_json['watchlist'].append({
+                    'city': json_data['city'],
+                    'quest': json_data['quest'],
+                    'page_parsed': json_data['page_parsed'],
+                    'total_pages': json_data['total_pages'],
+                    'ads': json_data['ads']
+                })
+                watchlist_file.close()
+            with open(r"watchlist/watchlist.json", "w", encoding='utf8') as watchlist_file:
+                json.dump(watchlist_file_json, watchlist_file, ensure_ascii=False)
+
     def update_token(self):
         print("updated!")
 
@@ -154,9 +179,10 @@ class ParserGUI:
     def start_callback(self):
         self.process_btn.configure(text="Stop", command=self.stop_callback)
         print("started!")
-        # c = json_data["city"]
-        # q = json_data["quest"]
-        avito_parser = AvitoParser(2.5, "Moskva".lower(), "Диван")
+        avito_parser = AvitoParser(2.5,
+                                   self.json_data['city'].lower(),
+                                   self.json_data['quest'].lower(),
+                                   self.json_data['depth'])
         avito_parser.parse_urls()
 
     def stop_callback(self):
